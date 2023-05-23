@@ -3,7 +3,7 @@ from flask_restplus import Api, Resource, fields
 from gpiozero import RGBLED
 from time import sleep
 
-led = RGBLED(red=12, green=13, blue=19)
+ 
 
 app = Flask(__name__)
 api = Api(app,
@@ -12,58 +12,46 @@ api = Api(app,
           description='Raspbery Pi RESTful API',
           doc='/docs')
 
-ns = api.namespace('pins', description='Pin related operations')
+ns = api.namespace('rgbled', description='RGB Led related operations')
 
-pin_model = api.model('pins', {
-    'id': fields.Integer(readonly=True, description='The pin unique identifier'),
+pin_model = api.model('rgbled', {
+    'id': fields.Integer(readonly=True, description='The unique identifier'),
     'red_pin': fields.Integer(required=True, description='red GPIO pin'),
     'green_pin': fields.Integer(required=True, description='green GPIO pin'),
     'blue_pin': fields.Integer(required=True, description='blue GPIO pin'),
-    'state': fields.Integer(required=True, description='red GPIO pin')
+    'state':  { "red_pin" :  fields.Integer, "green_pin": fields.Integer , "blue_pin": fields.Integer }
    
 })
+
 
 
 class PinUtil(object):
     def __init__(self):
         self.counter = 0
-        self.pins = []
+        self.leds = []
 
     def get(self, id):
-        for pin in self.pins:
-            if pin['id'] == id:
-                return pin
-        api.abort(404, f"pin {id} doesn't exist.")
+        for led in self.leds:
+            if led['id'] == id:
+                return led
+        api.abort(404, f"led {id} doesn't exist.")
 
     def create(self, data):
-        pin = data
-        pin['id'] = self.counter = self.counter + 1
-        self.pins.append(pin)
-        GPIO.setup(pin['pin_num'], GPIO.OUT)
-
-        if pin['state'] == 'off':
-            GPIO.output(pin['pin_num'], GPIO.LOW)
-        elif pin['state'] == 'on':
-            GPIO.output(pin['pin_num'], GPIO.HIGH)
-
-        return pin
+        led =RGBLED( 'red_pin':)
+        led['id'] = self.counter = self.counter + 1
+        led['state']= [0,0,0]
+        self.leds.append(led)
+        return led
 
     def update(self, id, data):
-        pin = self.get(id)
-        pin.update(data)  # this is the dict_object update method
-        GPIO.setup(pin['pin_num'], GPIO.OUT)
-
-        if pin['state'] == 'off':
-            GPIO.output(pin['pin_num'], GPIO.LOW)
-        elif pin['state'] == 'on':
-            GPIO.output(pin['pin_num'], GPIO.HIGH)
-
-        return pin
+        led = self.get(id)
+        led.update(data)  # this is the dict_object update method
+        return led
 
     def delete(self, id):
-        pin = self.get(id)
+        led = self.get(id)
         GPIO.output(pin['pin_num'], GPIO.LOW)
-        self.pins.remove(pin)
+        self.leds.remove(led)
 
 
 @ns.route('/')  # keep in mind this our ns-namespace (pins/)
@@ -112,18 +100,11 @@ class Pin(Resource):
         return pin_util.update(id, api.payload)
 
 
-GPIO.setmode(GPIO.BCM)
+
 
 pin_util = PinUtil()
-pin_util.create({'pin_num': 23, 'color': 'red', 'state': 'off'})
-pin_util.create({'pin_num': 24, 'color': 'yellow', 'state': 'off'})
-pin_util.create({'pin_num': 25, 'color': 'blue', 'state': 'off'})
-pin_util.create({'pin_num': 22, 'color': 'red', 'state': 'off'})
-pin_util.create({'pin_num': 12, 'color': 'yellow', 'state': 'off'})
-pin_util.create({'pin_num': 16, 'color': 'blue', 'state': 'off'})
-pin_util.create({'pin_num': 20, 'color': 'red', 'state': 'off'})
-pin_util.create({'pin_num': 21, 'color': 'green', 'state': 'off'})
-pin_util.create({'pin_num': 13, 'color': 'yellow', 'state': 'off'})
+pin_util.create({'red_pin': 12, 'green_pin': 13,'blue_pin': 19, 'state':[0,0,0]})
+
 
 
 if __name__ == '__main__':
