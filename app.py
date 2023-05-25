@@ -36,9 +36,13 @@ pin_model = api.model('rgbled', {
 
 
 class PinUtil(object):
-    def __init__(self):
+    def __init__(self,red=0,green=0,blue=0):
         self.counter = 0
         self.leds = []
+        led = RGBLED(red=red, green=green, blue=blue)
+        led['id'] = self.counter = self.counter + 1
+        led['state']= [0,0,0]
+        self.leds.append(led)
 
     def get(self, id):
         for led in self.leds:
@@ -46,14 +50,12 @@ class PinUtil(object):
                 return led
         api.abort(404, f"led {id} doesn't exist.")
 
-    def create(self, data):
-     
-#        led =RGBLED( red=data['red_pin'] , green=  data['green_pin'] ,  blue= data['blue_pin']  )
-        led = RGBLED(red=12, green=13, blue=19)
-        led['id'] = self.counter = self.counter + 1
-        led['state']= [0,0,0]
-        self.leds.append(led)
-        return led
+#    def create(self, data):     
+#        led =RGBLED( red=data['red_pin'] , green=  data['green_pin'] ,  blue= data['blue_pin']  )        
+#        led['id'] = self.counter = self.counter + 1
+#        led['state']= [0,0,0]
+#        self.leds.append(led)
+#        return led
 
     def update(self, id, data):
         led = self.get(id)
@@ -114,8 +116,8 @@ class Pin(Resource):
 
 
 
-pin_util = PinUtil()
-pin_util.create({'red_pin': 12, 'green_pin': 13,'blue_pin': 19, 'state':[0,0,0]})
+pin_util = PinUtil(12, 13,19)
+#pin_util.create( 'red'=12, green=13,blue=19)
 
 
 
