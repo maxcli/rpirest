@@ -1,4 +1,14 @@
 from flask import Flask
+ 
+
+import collections
+
+collections.Iterable = collections.abc.Iterable
+collections.Mapping = collections.abc.Mapping
+collections.MutableSet = collections.abc.MutableSet
+collections.MutableMapping = collections.abc.MutableMapping
+
+
 from flask_restplus import Api, Resource, fields
 from gpiozero import RGBLED
 from time import sleep
@@ -37,7 +47,9 @@ class PinUtil(object):
         api.abort(404, f"led {id} doesn't exist.")
 
     def create(self, data):
-        led =RGBLED( 'red_pin':)
+     
+#        led =RGBLED( red=data['red_pin'] , green=  data['green_pin'] ,  blue= data['blue_pin']  )
+        led = RGBLED(red=12, green=13, blue=19)
         led['id'] = self.counter = self.counter + 1
         led['state']= [0,0,0]
         self.leds.append(led)
